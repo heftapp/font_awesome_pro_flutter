@@ -33,7 +33,9 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           channel: ${{ matrix.channel }}
-      - name: Bootstrap melos
+      - name: Install
+        run: dart pub get
+      - name: Analyze
         run: dart analyze --fatal-infos .
 
   test:

@@ -1,0 +1,7 @@
+builders:
+  font_awesome_pro_flutter:
+    import: 'package:font_awesome_pro_flutter/builder.dart'
+    builder_factories: ['FontAwesomePro.builder']
+    build_extensions: {'lib/$lib$': ['.font_awesome.dart']}
+    auto_apply: dependents
+    build_to: source

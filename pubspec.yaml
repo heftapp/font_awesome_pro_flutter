@@ -1,0 +1,19 @@
+name: font_awesome_pro_flutter
+description: |
+  Simple, opinionated, codegen library for GraphQL. It allows you to
+  generate serializers and client helpers to easily call and parse your data.
+
+version: 0.0.1
+homepage: https://github.com/heftapp/font_awesome_pro_flutter
+repository: https://github.com/heftapp/font_awesome_pro_flutter
+
+environment:
+  sdk: '>=2.12.0 <3.0.0'
+
+dependencies: 
+  build: ^2.0.1
+
+dev_dependencies:
+  test: ^1.17.4
+  build_test: ^2.1.0
+  build_runner: ^2.0.3

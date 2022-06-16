@@ -1,47 +1,18 @@
 import 'dart:async';
 
+import 'package:analyzer/dart/ast/visitor.dart';
 import 'package:build/build.dart';
 import 'package:built_collection/built_collection.dart';
 import 'package:code_builder/code_builder.dart';
 import 'package:dart_style/dart_style.dart';
 import 'package:font_awesome_pro_flutter/icons.dart';
+import 'package:glob/glob.dart';
 import 'package:path/path.dart' as p;
 import 'package:recase/recase.dart';
 
-class _IconWrapper {
-  final String unicode;
-  final String label;
-  final String name;
-
-  const _IconWrapper({
-    required this.unicode,
-    required this.label,
-    required this.name,
-  });
-
-  static _IconWrapper parse(Map<String, dynamic> map) => _IconWrapper(
-        unicode: map['unicode'],
-        label: map['label'],
-        name: map['name'],
-      );
-  Field toField() {
-    return Field(
-      (b) => b
-        ..name = ReCase("fa-${name}").camelCase
-        ..modifier = FieldModifier.constant
-        ..type = refer("IconData")
-        ..static = true
-        ..assignment = refer('IconData').call(
-          [literalNum(int.parse(unicode, radix: 16))],
-          {'fontFamily': refer('_fontFamily')},
-        ).code,
-    );
-  }
-}
-
 const styles = {'solid', 'regular', 'light', 'thin', 'brands'};
 
-Library print(String style, List<_IconWrapper> icons) {
+Library printLibrary(String style, Iterable<_IconResult> icons) {
   return Library(
     (b) => b
       ..directives = ListBuilder(
@@ -71,28 +42,83 @@ Library print(String style, List<_IconWrapper> icons) {
   );
 }
 
+class _IconResult {
+  final String style;
+  final String name;
+
+  _IconResult({
+    required this.style,
+    required this.name,
+  });
+
+  @override
+  bool operator ==(other) =>
+      other is _IconResult && other.style == style && other.name == name;
+
+  @override
+  int get hashCode => Object.hashAll([style, name]);
+
+  Field toField() {
+    final unicode = iconsMap[name];
+    if (unicode == null) {
+      throw new Error(); // TODO better errors
+    }
+    return Field(
+      (b) => b
+        ..name = ReCase("fa-${name}").camelCase
+        ..modifier = FieldModifier.constant
+        ..type = refer("IconData")
+        ..static = true
+        ..assignment = refer('IconData').call(
+          [literalNum(int.parse(unicode, radix: 16))],
+          {'fontFamily': refer('_fontFamily')},
+        ).code,
+    );
+  }
+}
+
+class _Visitor extends RecursiveAstVisitor {
+  static final RegExp prefixPattern =
+      RegExp(r"^FontAwesome(Solid|Regular|Light|Thin|Brands)IconData$");
+  static final RegExp iconPattern = RegExp(r"^fa(.+)$");
+  final Set<_IconResult> access = {};
+
+  @override
+  visitPrefixedIdentifier(node) {
+    final prefixMatch = prefixPattern.firstMatch(node.prefix.name);
+    final iconMatch = iconPattern.firstMatch(node.identifier.name);
+    if (prefixMatch != null && iconMatch != null) {
+      access.add(_IconResult(
+        style: prefixMatch.group(1)!.toLowerCase(),
+        name: ReCase(iconMatch.group(1)!).paramCase,
+      ));
+    }
+    super.visitPrefixedIdentifier(node);
+  }
+}
+
 class FontAwesomePro extends Builder {
   /// A static method to initialize the builder.
   static FontAwesomePro builder(BuilderOptions options) => FontAwesomePro();
 
+  static final _allDartFiles = Glob('lib/**.dart');
+
   @override
-  FutureOr<void> build(BuildStep buildStep) {
-    final Map<String, List<_IconWrapper>> parsedIcons = {};
-
-    for (final icon in iconsMap) {
-      final parsedIcon = _IconWrapper.parse(icon);
-      for (final String style in icon['styles']) {
-        if (parsedIcons[style] == null) {
-          parsedIcons[style] = [];
-        }
-        parsedIcons[style]?.add(parsedIcon);
-      }
+  Future<void> build(BuildStep buildStep) async {
+    final Set<_IconResult> icons = {};
+    await for (final input in buildStep.findAssets(_allDartFiles)) {
+      final node = await buildStep.resolver.compilationUnitFor(input);
+      final visitor = _Visitor();
+      node.accept(visitor);
+      icons.addAll(visitor.access);
     }
-
     for (final style in styles) {
       final formatter = DartFormatter();
       final emitter = DartEmitter(useNullSafetySyntax: true);
-      final library = print(style, parsedIcons[style] ?? []);
+      final library = printLibrary(
+        style,
+        icons.where((element) => element.style == style),
+      );
       final contents = formatter.format("${library.accept(emitter)}");
       buildStep.writeAsString(
         AssetId(

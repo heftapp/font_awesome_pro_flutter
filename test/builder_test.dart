@@ -13,24 +13,31 @@ void main() {
       final writer = InMemoryAssetWriter();
       await testBuilder(
         FontAwesomePro(),
-        {'a|lib/foo.dart': "# Hello"},
+        {
+          'a|lib/foo.dart': """
+const v = FontAwesomeSolidIconData.faAlbumCollectionCirclePlus;
+"""
+        },
         writer: writer,
         rootPackage: 'a',
         outputs: {
           r'a|lib/font_awesome/solid.dart': decodedMatches(
-            stringContainsInOrder(['class FontAwesomeSolid']),
+            stringContainsInOrder([
+              'class FontAwesomeSolidIconData',
+              'faAlbumCollectionCirclePlus'
+            ]),
           ),
           r'a|lib/font_awesome/regular.dart': decodedMatches(
-            stringContainsInOrder(['class FontAwesomeRegular']),
+            stringContainsInOrder(['class FontAwesomeRegularIconData']),
           ),
           r'a|lib/font_awesome/light.dart': decodedMatches(
-            stringContainsInOrder(['class FontAwesomeLight']),
+            stringContainsInOrder(['class FontAwesomeLightIconData']),
           ),
           r'a|lib/font_awesome/thin.dart': decodedMatches(
-            stringContainsInOrder(['class FontAwesomeThin']),
+            stringContainsInOrder(['class FontAwesomeThinIconData']),
           ),
           r'a|lib/font_awesome/brands.dart': decodedMatches(
-            stringContainsInOrder(['class FontAwesomeBrands']),
+            stringContainsInOrder(['class FontAwesomeBrandsIconData']),
           ),
         },
       );

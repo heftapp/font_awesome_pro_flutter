@@ -33,6 +33,17 @@ These can be downloaded at [FontAwesome](https://fontawesome.com/download).
 
 The currently supported version is `6.1.1`.
 
+## Usage
+
+The library will only generate the icons when used. E.g., if you write
+
+```dart
+const IconData icon =  FASolid.faX;
+```
+
+the library will generate `faX` for the solid style.
+
+
 ## Future work
 
 * The generated files are MASSIVE. The next step will be to allow configuring which styles to generate.

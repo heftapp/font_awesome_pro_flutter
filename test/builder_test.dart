@@ -15,29 +15,27 @@ void main() {
         FontAwesomePro(),
         {
           'a|lib/foo.dart': """
-const v = FontAwesomeSolidIconData.faAlbumCollectionCirclePlus;
+const v = FASolid.faAlbumCollectionCirclePlus;
 """
         },
         writer: writer,
         rootPackage: 'a',
         outputs: {
           r'a|lib/font_awesome/solid.dart': decodedMatches(
-            stringContainsInOrder([
-              'class FontAwesomeSolidIconData',
-              'faAlbumCollectionCirclePlus'
-            ]),
+            stringContainsInOrder(
+                ['class FASolid', 'faAlbumCollectionCirclePlus']),
           ),
           r'a|lib/font_awesome/regular.dart': decodedMatches(
-            stringContainsInOrder(['class FontAwesomeRegularIconData']),
+            stringContainsInOrder(['class FARegular']),
           ),
           r'a|lib/font_awesome/light.dart': decodedMatches(
-            stringContainsInOrder(['class FontAwesomeLightIconData']),
+            stringContainsInOrder(['class FALight']),
           ),
           r'a|lib/font_awesome/thin.dart': decodedMatches(
-            stringContainsInOrder(['class FontAwesomeThinIconData']),
+            stringContainsInOrder(['class FAThin']),
           ),
           r'a|lib/font_awesome/brands.dart': decodedMatches(
-            stringContainsInOrder(['class FontAwesomeBrandsIconData']),
+            stringContainsInOrder(['class FABrands']),
           ),
         },
       );

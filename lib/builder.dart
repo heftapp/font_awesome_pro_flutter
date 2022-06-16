@@ -22,7 +22,7 @@ Library printLibrary(String style, Iterable<_IconResult> icons) {
         [
           Class(
             (b) => b
-              ..name = ReCase("font_awesome_${style}_icon_data").pascalCase
+              ..name = ReCase("f_a_${style}").pascalCase
               ..constructors = ListBuilder([Constructor((b) => b..name = "_")])
               ..fields = ListBuilder([
                 ...icons.map((e) => e.toField()),
@@ -79,7 +79,7 @@ class _IconResult {
 
 class _Visitor extends RecursiveAstVisitor {
   static final RegExp prefixPattern =
-      RegExp(r"^FontAwesome(Solid|Regular|Light|Thin|Brands)IconData$");
+      RegExp(r"^FA(Solid|Regular|Light|Thin|Brands)$");
   static final RegExp iconPattern = RegExp(r"^fa(.+)$");
   final Set<_IconResult> access = {};
 

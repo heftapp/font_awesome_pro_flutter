@@ -46,5 +46,4 @@ the library will generate `faX` for the solid style.
 
 ## Future work
 
-* The generated files are MASSIVE. The next step will be to allow configuring which styles to generate.
 * Duotone is NOT yet supported.
